@@ -2,6 +2,8 @@ package brokermsg.rmi.server;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.util.concurrent.ConcurrentHashMap;
+import javax.rmi.ssl.SslRMIClientSocketFactory;
+import javax.rmi.ssl.SslRMIServerSocketFactory;
 
 import brokermsg.tcp.server.ContadorAddRead;
 import sdis.utils.MultiMap;
@@ -32,9 +34,15 @@ public class LauncherRMI {
 		this.multiMapa = multiMapa;
 	}
 	public void run() {
+		System.setProperty("javax.net.ssl.keyStore", "src/sdis/config/servidor_keystore.jks");
+		System.setProperty("javax.net.ssl.keyStorePassword", "000416");
 		 try {
 	            // Crear el registro RMI en el puerto 1099 (localhost)
-	            Registry registry = LocateRegistry.createRegistry(puerto);
+			 Registry registry = LocateRegistry.createRegistry(
+					    puerto,
+					    new SslRMIClientSocketFactory(),
+					    new SslRMIServerSocketFactory()
+					);
 
 	            // Crear las implementaciones de los objetos
 	            AuthenticatorImpl auth = new AuthenticatorImpl(usuariosHashMap, tokensHashMap);
