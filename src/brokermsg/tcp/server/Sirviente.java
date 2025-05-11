@@ -16,6 +16,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 class Sirviente implements Runnable {
     private Socket socket; // Es el socket con el que se haya aceptado la conexion al servidor
     private ConcurrentHashMap<String, String> usuariosHashMap;  // Aqui se guardan los usuarios con las contraseñas
+    private ConcurrentHashMap<String, String> usuariosAdminHashMap;
     private ConcurrentHashMap<Integer, Sirviente> mapaSirvientes; // Hay que pasar un mapa de los sirvientes que ha lanzado el servidor, sirve para depurar
     private ConcurrentHashMap<String, ContadorAddRead> mapaMensajesAddRead; // Aqui van los datos de depuracion de las diferentes colas
     private BlackListManager listaIps; // Aqui se guarda las direcciones Ip conectadas al servidor
@@ -45,6 +46,7 @@ class Sirviente implements Runnable {
     public Sirviente(Socket socketRecibido,
                      Integer id,
                      ConcurrentHashMap<String, String> usuariosHashMap,
+                     ConcurrentHashMap<String, String> usuariosAdminHashMap,
                      BlackListManager listaIps,
                      BlackListManager listaLoginsIncorrectos,
                      int numHilosTotales,
@@ -57,6 +59,7 @@ class Sirviente implements Runnable {
         this.ois = new ObjectInputStream(socket.getInputStream());
         this.id = id;
         this.usuariosHashMap = usuariosHashMap;
+        this.usuariosAdminHashMap = usuariosAdminHashMap;
         this.listaIps = listaIps;
         this.listaLoginsIncorrectos = listaLoginsIncorrectos;
         this.numHilosTotales = numHilosTotales;
@@ -205,7 +208,7 @@ class Sirviente implements Runnable {
                                 mapaMensajesAddRead.get(mensajeProtocolo.getIdCola()).sumaUnaAdd(); // sumamos a uno el valor de depuracion de mensajes añadidos a la cola
                                 mensajeProtocolo = new MensajeProtocolo(Primitiva.ADDED); // mandamos el mensaje protocolo con la primitiva correspondiente de que se ha enviado bien
                                 oos.writeObject(mensajeProtocolo);
-                            }else if ((!multiMapa.contains(mensajeProtocolo.getIdCola()) && (usuarioCliente.equals("admin")))) {
+                            }else if ((!multiMapa.contains(mensajeProtocolo.getIdCola()) && (usuariosAdminHashMap.contains(usuarioCliente)))) {
                                 System.out.println("El administrador ha creado una cola"); // aqui llegamos cuando, no existe la cola, pero el que envia el mensaje es el administrador
                                 multiMapa.push(mensajeProtocolo.getIdCola(), mensajeProtocolo.getMensaje()); // Es el mismo proceso que va desde la linea 192 a la 195
                                 mapaMensajesAddRead.put(mensajeProtocolo.getIdCola(), new ContadorAddRead());
@@ -252,7 +255,7 @@ class Sirviente implements Runnable {
                             mensajeProtocolo = new MensajeProtocolo(Primitiva.BADCODE, "La primitiva STATE necesita tener el apartado de mensaje no null");
                             oos.writeObject(mensajeProtocolo);
                         }// Primitiva exclusiva del administrador
-                        if (usuarioCliente.equals("admin")){
+                        if (usuariosAdminHashMap.contains(usuarioCliente)){
                             mensajeProtocolo = new MensajeProtocolo(Primitiva.INFO, ""+numHilosTotales+":"+executor.getActiveCount()+
                                     ":"+mapaMensajesAddRead.get(mensajeProtocolo.getMensaje()).getContadorAdd()
                                     +":"+mapaMensajesAddRead.get(mensajeProtocolo.getMensaje()).getContadorRead());
@@ -267,7 +270,7 @@ class Sirviente implements Runnable {
                             mensajeProtocolo = new MensajeProtocolo(Primitiva.BADCODE, "La primitiva DELETEQ tiene que tener un mensaje");
                             oos.writeObject(mensajeProtocolo);
                         }
-                        if (usuarioCliente.equals("admin")){
+                        if (usuariosAdminHashMap.contains(usuarioCliente)){
                             if (multiMapa.contains(mensajeProtocolo.getMensaje())){
                                 multiMapa.delCola(mensajeProtocolo.getMensaje());
                                 mensajeProtocolo = new MensajeProtocolo(Primitiva.DELETED);

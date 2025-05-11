@@ -39,7 +39,7 @@ public class mainServidor {
 	            mapper.writeValue(new File("src/sdis/config/usuariosContras.json"), usuariosHashMap);
 	            mapper.writeValue(new File("src/sdis/config/colasMensajeria.json"), multiMapa.obtenerTodasColas());
 	            mapper.writeValue(new File("src/sdis/config/depuracionColasMensajeria.json"), mapaMensajesAddRead);
-	            ServidorTCP servidorPadre = new ServidorTCP(5, 2000, usuariosHashMap,mapaMensajesAddRead, multiMapa);
+	            ServidorTCP servidorPadre = new ServidorTCP(5, 2000, usuariosHashMap,usuariosAdminHashMap,mapaMensajesAddRead, multiMapa);
 	            LauncherRMI servidorRMI = new LauncherRMI(1099, usuariosHashMap, usuariosAdminHashMap, tokensHashMap, tokensAdminHashMap,peticionesHashMap, mapaMensajesAddRead, multiMapa);
 	            servidorPadre.run();
 	            servidorRMI.run();

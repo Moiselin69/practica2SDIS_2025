@@ -19,6 +19,7 @@ public class ServidorTCP implements Runnable {
     private int puertoAbrir; // se utilizará para saber que puerto abrir
     private ConcurrentHashMap<Integer, Sirviente> mapaSirvientes = new ConcurrentHashMap<Integer, Sirviente>(); // sirve para depuración de hilos lanzados
     private ConcurrentHashMap<String, String> usuariosHashMap; // se utilizará para verificar usuarios con la base de datos
+    private ConcurrentHashMap<String, String> usuariosAdminHashMap;
     private ConcurrentHashMap<String, ContadorAddRead> mapaMensajesAddRead;
     private MultiMap multiMap;
     private ObjectMapper mapper = new ObjectMapper(); // se utilizará para verificar usuarios con la base de datos
@@ -31,12 +32,14 @@ public class ServidorTCP implements Runnable {
 
     public ServidorTCP(int numHilos, int puertoAbrir,
     		ConcurrentHashMap<String, String> usuariosHashMap,
+    		ConcurrentHashMap<String, String> usuariosAdminHashMap,
     		ConcurrentHashMap<String, ContadorAddRead> mapaMensajesAddRead,
     		MultiMap multiMapa) throws IOException {
         this.numHilos = numHilos;
         this.puertoAbrir = puertoAbrir;
         socketServidor = new ServerSocket(this.puertoAbrir);
         this.usuariosHashMap = usuariosHashMap;
+        this.usuariosAdminHashMap = usuariosAdminHashMap;
         this.mapaMensajesAddRead = mapaMensajesAddRead;
         this.multiMap = multiMapa;
     }
@@ -46,7 +49,7 @@ public class ServidorTCP implements Runnable {
             try {
                 System.out.println("----Server Waiting For Client----");
                 socketParaCliente = socketServidor.accept(); // aceptamos el socket que nos llega siempre
-                Sirviente sirvienteX = new Sirviente(socketParaCliente, idSirviente, usuariosHashMap, listaIps, listaLogginsIncorrectos, numHilos, mapaSirvientes, mapaMensajesAddRead, multiMap, (ThreadPoolExecutor) executor); // crear el nuevo hilo sirviente
+                Sirviente sirvienteX = new Sirviente(socketParaCliente, idSirviente, usuariosHashMap, usuariosAdminHashMap,listaIps, listaLogginsIncorrectos, numHilos, mapaSirvientes, mapaMensajesAddRead, multiMap, (ThreadPoolExecutor) executor); // crear el nuevo hilo sirviente
                 mapaSirvientes.put(idSirviente, sirvienteX); // guardamos el sirviente por mera depuración
                 executor.submit(sirvienteX); // lanzamos el hilo
                 idSirviente++;
