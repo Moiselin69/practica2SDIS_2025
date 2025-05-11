@@ -15,7 +15,7 @@ public interface BrokerMsg extends Remote {
      * @return AUTH si la autenticación es correcta, NOTAUTH en caso contrario
      * @throws RemoteException
      */
-    String auth(String username, String password) throws RemoteException;
+    String auth(String token, String username, String password) throws RemoteException, BathAuthException, NotAuthException;
     
     /**
      * Añade un mensaje a una cola específica
@@ -23,14 +23,14 @@ public interface BrokerMsg extends Remote {
      * @param message Mensaje a añadir
      * @throws RemoteException
      */
-    void add2Q(String queueName, String message) throws RemoteException;
+    void add2Q(String token, String queueName, String message) throws RemoteException, NotAuthException;
     
     /**
      * Añade un mensaje a la cola por defecto
      * @param message Mensaje a añadir
      * @throws RemoteException
      */
-    void add2Q(String message) throws RemoteException;
+    void add2Q(String token, String message) throws RemoteException, NotAuthException;
     
     /**
      * Lee y elimina un mensaje de una cola específica
@@ -38,13 +38,19 @@ public interface BrokerMsg extends Remote {
      * @return El mensaje leído o null si la cola está vacía
      * @throws RemoteException
      */
-    String readQ(String queueName) throws RemoteException;
+    String readQ(String token, String queueName) throws RemoteException, NotAuthException;
     
     /**
      * Lee y elimina un mensaje de la cola por defecto
      * @return El mensaje leído o null si la cola está vacía
      * @throws RemoteException
      */
-    String readQ() throws RemoteException;
+    String readQ(String token) throws RemoteException, NotAuthException;
+    /**
+     * Peticion para ser añadido al servidor 
+     * @param nombreUsuario Como primer parametro pasamos el nombre de usuario que desea entrar al sistema
+     * @param contraUsuario Como segundo parametro pasamos el nombre de usuario que desea entrar al sistema
+     */
+    String enter(String token, String nombreUsuario, String contraUsuario)throws RemoteException, BathAuthException, NotAuthException;
 }
 
