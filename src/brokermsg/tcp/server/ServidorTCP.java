@@ -25,7 +25,7 @@ public class ServidorTCP implements Runnable {
     private ObjectMapper mapper = new ObjectMapper(); // se utilizará para verificar usuarios con la base de datos
     private int idSirviente = 0; // se utilizrá para saber que sirviente ha fallado
     private SSLServerSocket socketServidor;
-    private Socket socketParaCliente;
+    private SSLSocket socketParaCliente;
     BlackListManager listaIps = new BlackListManager(3);
     BlackListManager listaLogginsIncorrectos = new BlackListManager(2);
     private ObjectOutputStream oos;
@@ -50,7 +50,7 @@ public class ServidorTCP implements Runnable {
         while (true){
             try {
                 System.out.println("----Server Waiting For Client----");
-                socketParaCliente = socketServidor.accept(); // aceptamos el socket que nos llega siempre
+                socketParaCliente = (SSLSocket)socketServidor.accept(); // aceptamos el socket que nos llega siempre
                 Sirviente sirvienteX = new Sirviente(socketParaCliente, idSirviente, usuariosHashMap, usuariosAdminHashMap,listaIps, listaLogginsIncorrectos, numHilos, mapaSirvientes, mapaMensajesAddRead, multiMap, (ThreadPoolExecutor) executor); // crear el nuevo hilo sirviente
                 mapaSirvientes.put(idSirviente, sirvienteX); // guardamos el sirviente por mera depuración
                 executor.submit(sirvienteX); // lanzamos el hilo

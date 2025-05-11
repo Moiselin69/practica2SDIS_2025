@@ -46,7 +46,7 @@ class Sirviente implements Runnable {
      * @param executor Es con lo que se ha lanzado el pool de hilos, sirve para depurar
      * @throws java.io.IOException
      */
-    public Sirviente(Socket socketRecibido,
+    public Sirviente(SSLSocket socketRecibido,
                      Integer id,
                      ConcurrentHashMap<String, String> usuariosHashMap,
                      ConcurrentHashMap<String, String> usuariosAdminHashMap,
@@ -57,10 +57,9 @@ class Sirviente implements Runnable {
                      ConcurrentHashMap<String, ContadorAddRead> mapaMensajesAddRead,
                      MultiMap multiMapa,
                      ThreadPoolExecutor executor) throws java.io.IOException {
-    	this.socket = (SSLSocket) SSLSocketFactory.getDefault().createSocket(
-    		    socketRecibido.getInetAddress(), socketRecibido.getPort());
-        this.oos = new ObjectOutputStream(socket.getOutputStream());
-        this.ois = new ObjectInputStream(socket.getInputStream());
+    	this.socket = (SSLSocket) socketRecibido;
+    	this.ois = new ObjectInputStream(socket.getInputStream());
+    	this.oos = new ObjectOutputStream(socket.getOutputStream());
         this.id = id;
         this.usuariosHashMap = usuariosHashMap;
         this.usuariosAdminHashMap = usuariosAdminHashMap;

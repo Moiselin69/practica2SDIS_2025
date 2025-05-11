@@ -41,8 +41,9 @@ public class mainServidor {
 	            mapper.writeValue(new File("src/sdis/config/depuracionColasMensajeria.json"), mapaMensajesAddRead);
 	            ServidorTCP servidorPadre = new ServidorTCP(5, 2000, usuariosHashMap,usuariosAdminHashMap,mapaMensajesAddRead, multiMapa);
 	            LauncherRMI servidorRMI = new LauncherRMI(1099, usuariosHashMap, usuariosAdminHashMap, tokensHashMap, tokensAdminHashMap,peticionesHashMap, mapaMensajesAddRead, multiMapa);
-	            servidorPadre.run();
 	            servidorRMI.run();
+	            servidorPadre.run();
+	            
 	        }
 	        catch (Exception e){
 	            System.out.println(("Ha surgido un error en el main"+e.toString()));
