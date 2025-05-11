@@ -12,9 +12,12 @@ import java.net.Socket;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
+
 
 class Sirviente implements Runnable {
-    private Socket socket; // Es el socket con el que se haya aceptado la conexion al servidor
+    private SSLSocket socket; // Es el socket con el que se haya aceptado la conexion al servidor
     private ConcurrentHashMap<String, String> usuariosHashMap;  // Aqui se guardan los usuarios con las contraseñas
     private ConcurrentHashMap<String, String> usuariosAdminHashMap;
     private ConcurrentHashMap<Integer, Sirviente> mapaSirvientes; // Hay que pasar un mapa de los sirvientes que ha lanzado el servidor, sirve para depurar
@@ -54,7 +57,8 @@ class Sirviente implements Runnable {
                      ConcurrentHashMap<String, ContadorAddRead> mapaMensajesAddRead,
                      MultiMap multiMapa,
                      ThreadPoolExecutor executor) throws java.io.IOException {
-        this.socket = socketRecibido;
+    	this.socket = (SSLSocket) SSLSocketFactory.getDefault().createSocket(
+    		    socketRecibido.getInetAddress(), socketRecibido.getPort());
         this.oos = new ObjectOutputStream(socket.getOutputStream());
         this.ois = new ObjectInputStream(socket.getInputStream());
         this.id = id;

@@ -5,7 +5,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import brokermsg.tcp.server.Sirviente;
 import sdis.utils.MultiMap;
-
+import javax.net.ssl.*;
 import java.io.File;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
@@ -24,7 +24,7 @@ public class ServidorTCP implements Runnable {
     private MultiMap multiMap;
     private ObjectMapper mapper = new ObjectMapper(); // se utilizará para verificar usuarios con la base de datos
     private int idSirviente = 0; // se utilizrá para saber que sirviente ha fallado
-    private ServerSocket socketServidor;
+    private SSLServerSocket socketServidor;
     private Socket socketParaCliente;
     BlackListManager listaIps = new BlackListManager(3);
     BlackListManager listaLogginsIncorrectos = new BlackListManager(2);
@@ -34,10 +34,12 @@ public class ServidorTCP implements Runnable {
     		ConcurrentHashMap<String, String> usuariosHashMap,
     		ConcurrentHashMap<String, String> usuariosAdminHashMap,
     		ConcurrentHashMap<String, ContadorAddRead> mapaMensajesAddRead,
-    		MultiMap multiMapa) throws IOException {
+    		MultiMap multiMapa) throws Exception {
         this.numHilos = numHilos;
         this.puertoAbrir = puertoAbrir;
-        socketServidor = new ServerSocket(this.puertoAbrir);
+        SSLContext sslContext = SSLServer.createSSLContext();
+        SSLServerSocketFactory sslServerSocketFactory = sslContext.getServerSocketFactory();
+        this.socketServidor = (SSLServerSocket) sslServerSocketFactory.createServerSocket(puertoAbrir);
         this.usuariosHashMap = usuariosHashMap;
         this.usuariosAdminHashMap = usuariosAdminHashMap;
         this.mapaMensajesAddRead = mapaMensajesAddRead;
