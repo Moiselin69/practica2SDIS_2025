@@ -13,14 +13,16 @@ public class BrokerMsgImpl extends UnicastRemoteObject implements BrokerMsg {
 	private ConcurrentHashMap<String, String> usuariosHashMap;
 	private ConcurrentHashMap<String, String> peticionesHashMap;
 	private ConcurrentHashMap<String, String> tokensHashMap;
-	public BrokerMsgImpl(ConcurrentHashMap<String, ConcurrentLinkedQueue<String>> multiMapa, 
-			ConcurrentHashMap<String, String> usuariosHashMap,
-			ConcurrentHashMap<String, String> peticionesHashMap) throws RemoteException {
+	public BrokerMsgImpl( ConcurrentHashMap<String, String> usuariosHashMap,
+			ConcurrentHashMap<String, String> tokensHashMap,
+			ConcurrentHashMap<String, String> peticionesHashMap,
+			MultiMap multiMapa) throws RemoteException {
 		super();
-		this.multiMapa = new MultiMap(multiMapa);
+		
 		this.usuariosHashMap = usuariosHashMap;
-		this.peticionesHashMap = peticionesHashMap;
 		this.tokensHashMap = tokensHashMap;
+		this.peticionesHashMap = peticionesHashMap;
+		this.multiMapa = multiMapa;
 	}
 	@Override
 	public String auth(String token, String username, String password) throws RemoteException {

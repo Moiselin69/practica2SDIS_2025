@@ -6,10 +6,14 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 public class MultiMap {
     private ConcurrentHashMap<String, ConcurrentLinkedQueue<String>> multiMapa;
 
-    public MultiMap(){}
+    public MultiMap() {
+    	multiMapa = new ConcurrentHashMap<String, ConcurrentLinkedQueue<String>>();
+    	multiMapa.put("COLA DEFAULT", new ConcurrentLinkedQueue<String>());
+    }
     public MultiMap(ConcurrentHashMap<String, ConcurrentLinkedQueue<String>> multiMapa){
         this.multiMapa = multiMapa;
-        multiMapa.put("COLA DEFAULT", new ConcurrentLinkedQueue<String>());
+        if (!this.multiMapa.contains("COLA DEFAULT"))
+        	multiMapa.put("COLA DEFAULT", new ConcurrentLinkedQueue<String>());
     }
 
     /**
@@ -87,5 +91,8 @@ public class MultiMap {
     		idColas.concat(clave+":");
     	});
     	return idColas;
+    }
+    public ConcurrentHashMap<String, ConcurrentLinkedQueue<String>> obtenerTodasColas() {
+    	return multiMapa;
     }
 }

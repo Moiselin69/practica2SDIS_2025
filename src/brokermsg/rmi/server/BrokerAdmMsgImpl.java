@@ -8,22 +8,26 @@ import brokermsg.rmi.common.BathAuthException;
 import brokermsg.rmi.common.BrokerAdmMsg;
 import brokermsg.rmi.common.BrokerMsg;
 import brokermsg.rmi.common.NotAuthException;
+import brokermsg.tcp.server.ContadorAddRead;
 import sdis.utils.GestorContra;
 import sdis.utils.MultiMap;
 public class BrokerAdmMsgImpl extends UnicastRemoteObject implements BrokerAdmMsg {
-	private MultiMap multiMapa;
 	private ConcurrentHashMap<String, String> usuariosHashMap;
-	private ConcurrentHashMap<String, String> peticionesHashMap;
 	private ConcurrentHashMap<String, String> tokensHashMap;
-	public BrokerAdmMsgImpl(ConcurrentHashMap<String, ConcurrentLinkedQueue<String>> multiMapa, 
-			ConcurrentHashMap<String, String> usuariosHashMap,
+	private ConcurrentHashMap<String, String> peticionesHashMap;
+	private ConcurrentHashMap<String, ContadorAddRead> mapaMensajesAddRead;
+	private MultiMap multiMapa;
+	public BrokerAdmMsgImpl( ConcurrentHashMap<String, String> usuariosHashMap,
+			ConcurrentHashMap<String, String> tokensHashMap,
 			ConcurrentHashMap<String, String> peticionesHashMap,
-			ConcurrentHashMap<String, String> tokensHashMap) throws RemoteException {
+			ConcurrentHashMap<String, ContadorAddRead> mapaMensajesAddRead,
+			MultiMap multiMapa) throws RemoteException {
 		super();
-		this.multiMapa = new MultiMap(multiMapa);
 		this.usuariosHashMap = usuariosHashMap;
-		this.peticionesHashMap = peticionesHashMap;
 		this.tokensHashMap = tokensHashMap;
+		this.peticionesHashMap = peticionesHashMap;
+		this.mapaMensajesAddRead = mapaMensajesAddRead;
+		this.multiMapa = multiMapa;
 	}
 	@Override
 	public String auth(String token, String username, String password) throws RemoteException, BathAuthException {
