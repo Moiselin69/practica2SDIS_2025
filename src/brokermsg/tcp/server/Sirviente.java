@@ -2,6 +2,7 @@ package brokermsg.tcp.server;
 
 import brokermsg.tcp.common.MensajeProtocolo;
 import brokermsg.tcp.common.Primitiva;
+import sdis.utils.GestorContra;
 import sdis.utils.MultiMap;
 import java.net.SocketException;
 import java.util.concurrent.ConcurrentHashMap;
@@ -143,7 +144,7 @@ class Sirviente implements Runnable {
                             mensajeProtocolo = new MensajeProtocolo(Primitiva.BADCODE, "La primitiva XAUTH tiene que tener mensaje y cola");
                             oos.writeObject(mensajeProtocolo);
                         } else if (usuariosHashMap.containsKey(usuarioCliente)) // verificamos que el usuario existe en el hashMap
-                            if (usuariosHashMap.get(usuarioCliente).equals(contraCliente)) { // verificamos que la contraseña sea el valor en el hashMap
+                            if (GestorContra.verificarContraseña(contraCliente, usuariosHashMap.get(usuarioCliente))) { // verificamos que la contraseña sea el valor en el hashMap
                                 mensajeProtocolo = new MensajeProtocolo(Primitiva.XAUTH, "User successfully logged");
                                 oos.writeObject(mensajeProtocolo); // en la linea 141 preparamos el mensaje, y en la 142 lo enviamos
                             }else{ // llegamos a esta parte cuando la contraseña no coincide
