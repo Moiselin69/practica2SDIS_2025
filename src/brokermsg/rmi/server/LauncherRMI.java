@@ -46,7 +46,7 @@ public class LauncherRMI {
 
 	            // Crear las implementaciones de los objetos
 	            AuthenticatorImpl auth = new AuthenticatorImpl(usuariosHashMap, tokensHashMap);
-	            BrokerMsgImpl data_user = new BrokerMsgImpl(usuariosHashMap, tokensHashMap, peticionesHashMap, multiMapa);
+	            BrokerMsgImpl data_user = new BrokerMsgImpl(usuariosHashMap, tokensHashMap, peticionesHashMap, mapaMensajesAddRead,multiMapa);
 	            BrokerAdmMsgImpl data_admin = new BrokerAdmMsgImpl(usuariosAdminHashMap, tokensAdminHashMap, peticionesHashMap, mapaMensajesAddRead, multiMapa);
 	            // Registrar los objetos en el registro con diferentes nombres
 	            registry.rebind("AuthenticatorImpl", auth);

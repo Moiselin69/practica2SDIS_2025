@@ -46,6 +46,8 @@ public class BrokerAdmMsgImpl extends UnicastRemoteObject implements BrokerAdmMs
 		if (queueName == null) throw new NotAuthException("El nombre de la cola es nulo");
 		if (message == null) throw new NotAuthException("El mensaje es nulo");
 		multiMapa.push(queueName, message);
+		if (!mapaMensajesAddRead.contains(queueName))mapaMensajesAddRead.put(queueName, new ContadorAddRead());
+		mapaMensajesAddRead.get(queueName).sumaUnaAdd();
 	}
 	@Override
 	public void add2Q(String token, String message) throws RemoteException, NotAuthException {
@@ -53,7 +55,7 @@ public class BrokerAdmMsgImpl extends UnicastRemoteObject implements BrokerAdmMs
 		if (!tokensHashMap.contains(token))throw new NotAuthException("Acceso Denegado");
 		if (message == null)throw new NotAuthException("El mensaje es nulo");
 		multiMapa.push("COLA DEFAULT", message);
-		
+		mapaMensajesAddRead.get("COLA DEFAULT").sumaUnaAdd();
 	}
 	@Override
 	public String readQ(String token, String queueName) throws RemoteException, NotAuthException {
@@ -62,7 +64,10 @@ public class BrokerAdmMsgImpl extends UnicastRemoteObject implements BrokerAdmMs
 		if (queueName == null) throw new NotAuthException("Cola no accesible");
 		String mensaje = multiMapa.pull(queueName);
 		if (mensaje == null)throw new NotAuthException("Cola sin mensajes");
-		else return mensaje;
+		else {
+			mapaMensajesAddRead.get(queueName).sumaUnaRead();
+			return mensaje;
+		}
 	}
 	@Override
 	public String readQ(String token) throws RemoteException, NotAuthException {
@@ -70,7 +75,10 @@ public class BrokerAdmMsgImpl extends UnicastRemoteObject implements BrokerAdmMs
 		if (!tokensHashMap.contains(token))throw new NotAuthException("Acceso Denegado");
 		String mensaje = multiMapa.pull("COLA DEFAULT");
 		if (mensaje == null)throw new NotAuthException("Cola sin mensajes");
-		else return mensaje;
+		else { 
+			mapaMensajesAddRead.get("COLA DEFAULT").sumaUnaRead();
+			return mensaje;
+		}
 	}
 	@Override
 	public String deleteQ(String token, String queueName) throws RemoteException, NotAuthException {
@@ -78,7 +86,10 @@ public class BrokerAdmMsgImpl extends UnicastRemoteObject implements BrokerAdmMs
 		if (!tokensHashMap.contains(token))throw new NotAuthException("Acceso Denegado");
 		if (queueName == null)throw new NotAuthException("El nombre de la cola no puede ser nulo");
 		boolean saBorrado = multiMapa.deleted(queueName);
-		if (saBorrado)return "DELETED";
+		if (saBorrado) {
+			mapaMensajesAddRead.remove(queueName);
+			return "DELETED";
+		}
 		else throw new NotAuthException("La cola no existe");
 	}
 	@Override
@@ -156,8 +167,10 @@ public class BrokerAdmMsgImpl extends UnicastRemoteObject implements BrokerAdmMs
 	}
 	@Override
 	public String state(String token, String queueName) throws RemoteException, NotAuthException {
-		// TODO Auto-generated method stub
-		return null;
+		if (token == null)throw new NotAuthException("Acceso Denegado");
+		if (!tokensHashMap.contains(token))throw new NotAuthException("Acceso Denegado");
+		if  (!multiMapa.contains(queueName))throw new NotAuthException("Acceso Denegado");
+		return queueName+":"+mapaMensajesAddRead.get(queueName).getContadorAdd()+":"+mapaMensajesAddRead.get(queueName).getContadorRead();
 	}
 
 }
