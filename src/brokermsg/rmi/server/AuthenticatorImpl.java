@@ -10,7 +10,7 @@ import brokermsg.rmi.common.NotAuthException;
 import sdis.utils.GestorContra;
 import sdis.utils.TokenGenerator;
 
-public class AuthenticatorImpl implements Authenticator{
+public class AuthenticatorImpl extends UnicastRemoteObject implements Authenticator{
 	private ConcurrentHashMap<String, String> usuariosHashMap;
 	private ConcurrentHashMap<String, String> tokensHashMap;
 	public AuthenticatorImpl(ConcurrentHashMap<String, String> usuariosHashMap,
