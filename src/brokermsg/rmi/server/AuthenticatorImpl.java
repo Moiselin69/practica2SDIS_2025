@@ -18,6 +18,12 @@ public class AuthenticatorImpl extends UnicastRemoteObject implements Authentica
 		this.usuariosHashMap = usuariosHashMap;
 		this.tokensHashMap = tokensHashMap;
 	}
+	private String obtenerIp(){
+		String clientHost = getClientHost(); // Heredado de RemoteServer
+            	InetAddress clientAddress = InetAddress.getByName(clientHost);
+            	String clientIP = clientAddress.getHostAddress();
+		return clientIP;
+	}
 	@Override
 	public String conect(String nombreUsuario, String password) throws RemoteException, BathAuthException, NotAuthException, NoSuchAlgorithmException {
 		if (nombreUsuario == null)throw new BathAuthException("Nombre de usuario null");
