@@ -27,6 +27,12 @@ public class BrokerMsgImpl extends UnicastRemoteObject implements BrokerMsg {
 		this.peticionesHashMap = peticionesHashMap;
 		this.multiMapa = multiMapa;
 	}
+	private String obtenerIp(){
+		String clientHost = getClientHost(); // Heredado de RemoteServer
+            	InetAddress clientAddress = InetAddress.getByName(clientHost);
+            	String clientIP = clientAddress.getHostAddress();
+		return clientIP;
+	}
 	@Override
 	public String auth(String token, String username, String password) throws RemoteException {
 		if (username == null)return "NOTAUTH";
