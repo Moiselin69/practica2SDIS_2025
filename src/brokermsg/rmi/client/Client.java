@@ -19,6 +19,8 @@ public class Client {
     private static Authenticator autenticador;
     
     public static void main(String[] args) {
+    	String tipoUsuario;
+    	boolean continuar = true;
         try {
             // Configurar seguridad RMI con SSL
             System.setProperty("javax.net.ssl.trustStore", "src/sdis/config/cliente_truststore.jks");
@@ -31,10 +33,23 @@ public class Client {
             autenticador = (Authenticator) registry.lookup("AuthenticatorImpl");
             broker = (BrokerMsg) registry.lookup("BrokerMsgImpl");
             brokerAdm = (BrokerAdmMsg) registry.lookup("BrokerAdmMsgImpl");
-            
-            // Autenticar al usuario
-            if (autenticarUsuario()) {
-                ejecutarMenu();
+            System.out.println("Buenas, ingrese un uno si quiere entrar como usuario normal, dos si quiere como administrador, 0 si desea salir");
+            while (continuar) {
+            	tipoUsuario = scanner.nextLine();
+            	if (tipoUsuario.equals("1")) {
+            		if (autenticarUsuario()) {
+            			ejecutarMenu();
+            			continuar = false;
+            		}
+            	}
+            	else if (tipoUsuario.equals("2")) {
+            		if (autenticarUsuario()) {
+            			ejecutarMenu();
+            			continuar = false;
+            	}
+            	}
+            	else if (tipoUsuario.equals("0")) continuar = false;
+            	else System.out.println("No has seleccionado si uno, dos o 0");
             }
         } catch (Exception e) {
             System.out.println("Error: " + e.getMessage());
@@ -42,9 +57,25 @@ public class Client {
             scanner.close();
         }
     }
-    
+    private static boolean autenticarUsuarioAdm() {
+            try {
+                System.out.print("Usuario: ");
+                String nombre = scanner.nextLine().trim();
+                System.out.print("Contraseña: ");
+                String contra = scanner.nextLine().trim();
+                
+                token = autenticador.conectAdm(nombre, contra);
+                System.out.println("Autenticación exitosa");
+                return true;
+            } catch (BathAuthException | NotAuthException e) {
+                System.out.println("Error de autenticación: " + e.getMessage());
+            } catch (Exception e) {
+                System.out.println("Error de conexión: " + e.getMessage());
+                return false;
+            }
+            return false;
+    }
     private static boolean autenticarUsuario() {
-        while (true) {
             try {
                 System.out.print("Usuario: ");
                 String nombre = scanner.nextLine().trim();
@@ -56,15 +87,11 @@ public class Client {
                 return true;
             } catch (BathAuthException | NotAuthException e) {
                 System.out.println("Error de autenticación: " + e.getMessage());
-                System.out.print("¿Intentar de nuevo? (s/n): ");
-                if (!scanner.nextLine().toLowerCase().startsWith("s")) {
-                    return false;
-                }
             } catch (Exception e) {
                 System.out.println("Error de conexión: " + e.getMessage());
                 return false;
             }
-        }
+			return false;  
     }
     
     private static void ejecutarMenu() {
@@ -150,8 +177,7 @@ public class Client {
             } catch (NumberFormatException e) {
                 System.out.println("Por favor, ingrese un número");
             } catch (Exception e) {
-                System.out.println("Error: " + e.getMessage());
-                e.printStackTrace(); 
+                System.out.println("Error: " + e.getMessage()); 
             }
         }
     }

@@ -6,6 +6,17 @@ import java.security.NoSuchAlgorithmException;
 
 public interface Authenticator extends Remote{
 	/**
+	 * Metodo para autenticar al administrador
+	 * @param nombreUsuario Nombre de usuario que se desea acceder 
+	 * @param password Contraseña del usuario del que se desea acceder
+	 * @return Devuelve la contraseña el token especifico del usuario
+	 * @throws RemoteException
+	 * @throws BathAuthException 
+	 * @throws NotAuthException
+	 * @throws NoSuchAlgorithmException
+	 */
+	String conectAdm(String nombreUsuario, String password) throws RemoteException, BathAuthException, NotAuthException, NoSuchAlgorithmException;
+	/**
 	 * Metodo para autenticar al usuario
 	 * @param nombreUsuario Nombre de usuario que se desea acceder 
 	 * @param password Contraseña del usuario del que se desea acceder

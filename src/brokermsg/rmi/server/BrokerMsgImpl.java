@@ -174,10 +174,17 @@ public class BrokerMsgImpl extends UnicastRemoteObject implements BrokerMsg {
 		if (contraUsuario == null) throw new BathAuthException("Contraseña no válida");
 		if (nombreUsuario.length() < 1) throw new BathAuthException("Nombre no válido");
 		if (contraUsuario.length() < 8) throw new BathAuthException("Contraseña no válida. Tiene que tener 8 caracteres o más");;
-		if (!contraUsuario.contains("0123456789")) throw new BathAuthException("Contraseña no válida. No contiene dígitos");;
-		if (!contraUsuario.contains("@#!%*ñç&?¿¡+-ºª$")) throw new BathAuthException("Contraseña no válida. No contiene caracteres especiales: '@#!%*ñç&?¿¡+-ºª$'");;
-		if (!contraUsuario.contains("abcdefghijklmnñopqrstuvwxyz")) throw new BathAuthException("Contraseña no válida. No contiene una minúscula");;
-		if (!contraUsuario.contains("ABCDEFGHIJKLMNÑOPQRSTUVWXYZ")) throw new BathAuthException("Contraseña no válida. No contiene una mayúscula");;
+		if (!contraUsuario.matches(".*\\d.*"))
+		    throw new BathAuthException("Contraseña no válida. No contiene dígitos");
+
+		if (!contraUsuario.matches(".*[@#!%*ñç&?¿¡+\\-ºª$].*"))
+		    throw new BathAuthException("Contraseña no válida. No contiene caracteres especiales: '@#!%*ñç&?¿¡+-ºª$'");
+
+		if (!contraUsuario.matches(".*[a-zñ].*"))
+		    throw new BathAuthException("Contraseña no válida. No contiene una minúscula");
+
+		if (!contraUsuario.matches(".*[A-ZÑ].*"))
+		    throw new BathAuthException("Contraseña no válida. No contiene una mayúscula");
 		if (usuariosHashMap.contains(nombreUsuario)) throw new BathAuthException("Nombre no válido. Ya existe en el sistema");
 		if (peticionesHashMap.contains(nombreUsuario)) throw new BathAuthException("Nombre no válido. Ya existe en el sistema");
 		contraCifrada = GestorContra.cifrarContras(contraUsuario);
