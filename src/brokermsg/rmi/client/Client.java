@@ -33,22 +33,23 @@ public class Client {
             autenticador = (Authenticator) registry.lookup("AuthenticatorImpl");
             broker = (BrokerMsg) registry.lookup("BrokerMsgImpl");
             brokerAdm = (BrokerAdmMsg) registry.lookup("BrokerAdmMsgImpl");
-            System.out.println("Buenas, ingrese un uno si quiere entrar como usuario normal, dos si quiere como administrador, 0 si desea salir");
+            System.out.println("Buenas; Escriba 1 si quiere entrar como usuario normal; Escriba 2 si quiere entrar como usuario administrador; Escriba 0 si desea salir");
             while (continuar) {
             	tipoUsuario = scanner.nextLine();
-            	if (tipoUsuario.equals("1")) {
+            	if (tipoUsuario.equals("0")) continuar = false;
+            	else if (tipoUsuario.equals("1")) {
             		if (autenticarUsuario()) {
             			ejecutarMenu();
             			continuar = false;
             		}
+            		else System.out.println("vuelva a elegir opción: ");
             	}
             	else if (tipoUsuario.equals("2")) {
-            		if (autenticarUsuario()) {
-            			ejecutarMenu();
+            		if (autenticarUsuarioAdm()) {
+            			ejecutarMenuAdm();
             			continuar = false;
+            		}else System.out.println("vuelva a elegir opción: ");
             	}
-            	}
-            	else if (tipoUsuario.equals("0")) continuar = false;
             	else System.out.println("No has seleccionado si uno, dos o 0");
             }
         } catch (Exception e) {
@@ -69,11 +70,11 @@ public class Client {
                 return true;
             } catch (BathAuthException | NotAuthException e) {
                 System.out.println("Error de autenticación: " + e.getMessage());
+                return false;
             } catch (Exception e) {
                 System.out.println("Error de conexión: " + e.getMessage());
                 return false;
             }
-            return false;
     }
     private static boolean autenticarUsuario() {
             try {
@@ -87,19 +88,18 @@ public class Client {
                 return true;
             } catch (BathAuthException | NotAuthException e) {
                 System.out.println("Error de autenticación: " + e.getMessage());
+                return false;
             } catch (Exception e) {
                 System.out.println("Error de conexión: " + e.getMessage());
                 return false;
-            }
-			return false;  
+            } 
     }
-    
-    private static void ejecutarMenu() {
+    private static void ejecutarMenuAdm() {
         boolean salir = false;
         
         while (!salir) {
             try {
-                mostrarMenu();
+                mostrarMenuAdm();
                 int opcion = Integer.parseInt(scanner.nextLine().trim());
                 
                 switch (opcion) {
@@ -113,21 +113,21 @@ public class Client {
                         String cola = scanner.nextLine();
                         System.out.print("Mensaje: ");
                         String msg = scanner.nextLine();
-                        broker.add2Q(token, cola, msg);
+                        brokerAdm.add2Q(token, cola, msg);
                         System.out.println("Mensaje añadido a " + cola);
                         break;
                     case 2: // Añadir mensaje a cola por defecto
                         System.out.print("Mensaje: ");
-                        broker.add2Q(token, scanner.nextLine());
+                        brokerAdm.add2Q(token, scanner.nextLine());
                         System.out.println("Mensaje añadido a cola por defecto");
                         break;
                     case 3: // Leer mensaje de cola
                         System.out.print("Cola: ");
-                        String mensaje = broker.readQ(token, scanner.nextLine());
+                        String mensaje = brokerAdm.readQ(token, scanner.nextLine());
                         System.out.println(mensaje != null ? "Mensaje: " + mensaje : "Cola vacía");
                         break;
                     case 4: // Leer mensaje de cola por defecto
-                        mensaje = broker.readQ(token);
+                        mensaje = brokerAdm.readQ(token);
                         System.out.println(mensaje != null ? "Mensaje: " + mensaje : "Cola vacía");
                         break;
                     case 5: // Eliminar cola
@@ -182,8 +182,74 @@ public class Client {
         }
     }
     
+    private static void ejecutarMenu() {
+        boolean salir = false;
+        
+        while (!salir) {
+            try {
+                mostrarMenu();
+                int opcion = Integer.parseInt(scanner.nextLine().trim());
+                
+                switch (opcion) {
+                    case 0: // Salir
+                        autenticador.disconnect(token);
+                        System.out.println("Sesión finalizada");
+                        salir = true;
+                        break;
+                    case 1: // Añadir mensaje a cola específica
+                        System.out.print("Cola: ");
+                        String cola = scanner.nextLine();
+                        System.out.print("Mensaje: ");
+                        String msg = scanner.nextLine();
+                        broker.add2Q(token, cola, msg);
+                        System.out.println("Mensaje añadido a " + cola);
+                        break;
+                    case 2: // Añadir mensaje a cola por defecto
+                        System.out.print("Mensaje: ");
+                        broker.add2Q(token, scanner.nextLine());
+                        System.out.println("Mensaje añadido a cola por defecto");
+                        break;
+                    case 3: // Leer mensaje de cola
+                        System.out.print("Cola: ");
+                        String mensaje = broker.readQ(token, scanner.nextLine());
+                        System.out.println(mensaje != null ? "Mensaje: " + mensaje : "Cola vacía");
+                        break;
+                    case 4: // Leer mensaje de cola por defecto
+                        mensaje = broker.readQ(token);
+                        System.out.println(mensaje != null ? "Mensaje: " + mensaje : "Cola vacía");
+                        break;
+                    case 5: // Solicitar acceso
+                        System.out.print("Nuevo usuario: ");
+                        String usuario = scanner.nextLine();
+                        System.out.print("Contraseña: ");
+                        System.out.println("Resultado: " + broker.enter(usuario, scanner.nextLine()));
+                        break;
+                    default:
+                        System.out.println("Opción no válida");
+                }
+            } catch (NotAuthException e) {
+                System.out.println(e.getMessage());
+            } catch (NumberFormatException e) {
+                System.out.println("Por favor, ingrese un número");
+            } catch (Exception e) {
+                System.out.println("Error: " + e.getMessage()); 
+            }
+        }
+    }
+    
     private static void mostrarMenu() {
         System.out.println("\n==== BROKER DE MENSAJES RMI ====");
+        System.out.println("0. Salir");
+        System.out.println("1. Añadir mensaje a cola específica");
+        System.out.println("2. Añadir mensaje a cola por defecto");
+        System.out.println("3. Leer mensaje de cola");
+        System.out.println("4. Leer mensaje de cola por defecto");
+        System.out.println("5. Solicitar acceso al sistema");
+        System.out.print("Opción: ");
+    }
+    private static void mostrarMenuAdm() {
+        System.out.println("\n==== BROKER DE MENSAJES RMI ====");
+        System.out.println("0. Salir");
         System.out.println("1. Añadir mensaje a cola específica");
         System.out.println("2. Añadir mensaje a cola por defecto");
         System.out.println("3. Leer mensaje de cola");
@@ -197,10 +263,8 @@ public class Client {
         System.out.println("11. Aceptar todas las peticiones");
         System.out.println("12. Aceptar petición específica");
         System.out.println("13. Solicitar acceso al sistema");
-        System.out.println("0. Salir");
         System.out.print("Opción: ");
     }
-    
     private static void mostrarPeticiones(String peticiones) {
         if (peticiones == null || peticiones.isEmpty()) {
             System.out.println("No hay peticiones pendientes");

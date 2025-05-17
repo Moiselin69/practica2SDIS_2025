@@ -16,19 +16,23 @@ import brokermsg.tcp.server.ContadorAddRead;
 import sdis.utils.GestorContra;
 import sdis.utils.MultiMap;
 public class BrokerAdmMsgImpl extends UnicastRemoteObject implements BrokerAdmMsg {
+	private ConcurrentHashMap<String, String> usuariosAdmHashMap;
 	private ConcurrentHashMap<String, String> usuariosHashMap;
 	private ConcurrentHashMap<String, String> tokensHashMap;
 	private ConcurrentHashMap<String, String> peticionesHashMap;
 	private ConcurrentHashMap<String, ContadorAddRead> mapaMensajesAddRead;
 	private MultiMap multiMapa;
 	private BlackListManager blackList;
-	public BrokerAdmMsgImpl( ConcurrentHashMap<String, String> usuariosHashMap,
+	public BrokerAdmMsgImpl(
+			ConcurrentHashMap<String, String> usuariosAdmHashMap,
+			ConcurrentHashMap<String, String> usuariosHashMap,
 			ConcurrentHashMap<String, String> tokensHashMap,
 			ConcurrentHashMap<String, String> peticionesHashMap,
 			ConcurrentHashMap<String, ContadorAddRead> mapaMensajesAddRead,
 			MultiMap multiMapa,
 			BlackListManager blackList) throws RemoteException {
 		super();
+		this.usuariosAdmHashMap = usuariosAdmHashMap;
 		this.usuariosHashMap = usuariosHashMap;
 		this.tokensHashMap = tokensHashMap;
 		this.peticionesHashMap = peticionesHashMap;
@@ -275,6 +279,7 @@ public class BrokerAdmMsgImpl extends UnicastRemoteObject implements BrokerAdmMs
 		this.peticionesHashMap.forEach((clave, valor)->{
 			usuariosHashMap.put(clave, valor);
 		});
+		peticionesHashMap.clear();
 	}
 	@Override
 	public void aceptarNuevosUsuarios(String token, String usuario) throws RemoteException, NotAuthException {
@@ -292,8 +297,9 @@ public class BrokerAdmMsgImpl extends UnicastRemoteObject implements BrokerAdmMs
 			throw new NotAuthException("Acceso Denegado");
 		}
 		if (usuario == null)return;
-		if (!peticionesHashMap.contains(usuario)) return;
+		if (!peticionesHashMap.containsKey(usuario)) return;
 		usuariosHashMap.put(usuario,peticionesHashMap.get(usuario));
+		peticionesHashMap.remove(usuario);
 	}
 	@Override
 	public String verPeticiones(String token) throws RemoteException, NotAuthException {
@@ -310,11 +316,11 @@ public class BrokerAdmMsgImpl extends UnicastRemoteObject implements BrokerAdmMs
 		finally {
 			throw new NotAuthException("Acceso Denegado");
 		}
-		String mensajeDevolver = "";
-		peticionesHashMap.forEach((clave,valor)->{
-			mensajeDevolver.concat(":"+clave);
+		StringBuilder mensajeDevolver = new StringBuilder();
+		peticionesHashMap.forEach((clave, valor) -> {
+		    mensajeDevolver.append(":").append(clave);
 		});
-		return mensajeDevolver;
+		return mensajeDevolver.toString();
 	}
 	@Override
 	public String state(String token, String queueName) throws RemoteException, NotAuthException {
