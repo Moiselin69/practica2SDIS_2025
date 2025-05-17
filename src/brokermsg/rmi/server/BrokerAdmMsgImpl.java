@@ -1,9 +1,13 @@
 package brokermsg.rmi.server;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.rmi.RemoteException;
+import java.rmi.server.ServerNotActiveException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+import brokermsg.common.BlackListManager;
 import brokermsg.rmi.common.BathAuthException;
 import brokermsg.rmi.common.BrokerAdmMsg;
 import brokermsg.rmi.common.BrokerMsg;
@@ -17,38 +21,82 @@ public class BrokerAdmMsgImpl extends UnicastRemoteObject implements BrokerAdmMs
 	private ConcurrentHashMap<String, String> peticionesHashMap;
 	private ConcurrentHashMap<String, ContadorAddRead> mapaMensajesAddRead;
 	private MultiMap multiMapa;
+	private BlackListManager blackList;
 	public BrokerAdmMsgImpl( ConcurrentHashMap<String, String> usuariosHashMap,
 			ConcurrentHashMap<String, String> tokensHashMap,
 			ConcurrentHashMap<String, String> peticionesHashMap,
 			ConcurrentHashMap<String, ContadorAddRead> mapaMensajesAddRead,
-			MultiMap multiMapa) throws RemoteException {
+			MultiMap multiMapa,
+			BlackListManager blackList) throws RemoteException {
 		super();
 		this.usuariosHashMap = usuariosHashMap;
 		this.tokensHashMap = tokensHashMap;
 		this.peticionesHashMap = peticionesHashMap;
 		this.mapaMensajesAddRead = mapaMensajesAddRead;
 		this.multiMapa = multiMapa;
+		this.blackList = blackList;
 	}
-	private String obtenerIp(){
+	private InetAddress obtenerIp() throws UnknownHostException, ServerNotActiveException{
 		String clientHost = getClientHost(); // Heredado de RemoteServer
-            	InetAddress clientAddress = InetAddress.getByName(clientHost);
-            	String clientIP = clientAddress.getHostAddress();
-		return clientIP;
+        InetAddress clientAddress = InetAddress.getByName(clientHost);
+        return clientAddress;     	
 	}
 	@Override
 	public String auth(String token, String username, String password) throws RemoteException, BathAuthException {
-		if (username == null)return "NOTAUTH";
-		if (password == null)return "NOTAUTH";
-		if (token == null)return "NOTAUTH";
-		if (!tokensHashMap.contains(token))return "NOTAUTH";
-		if (!usuariosHashMap.contains(username)) return "NOTAUTH";
-		if (!GestorContra.verificarContraseña(password, usuariosHashMap.get(username))) return "NOTAUTH";
+		try {if (blackList.superarFallosPermitidos(obtenerIp()))throw new NotAuthException("Acceso Denegado");}catch(Exception e) {}
+		if (username == null)try {
+			blackList.sumarUna(obtenerIp());
+		}catch(Exception e) {}
+		finally {
+			return "NOTAUTH";
+		}
+		if (password == null)try {
+			blackList.sumarUna(obtenerIp());
+		}catch(Exception e) {}
+		finally {
+			return "NOTAUTH";
+		}
+		if (token == null)try {
+			blackList.sumarUna(obtenerIp());
+		}catch(Exception e) {}
+		finally {
+			return "NOTAUTH";
+		}
+		if (!tokensHashMap.contains(token))try {
+			blackList.sumarUna(obtenerIp());
+		}catch(Exception e) {}
+		finally {
+			return "NOTAUTH";
+		}
+		if (!usuariosHashMap.contains(username)) try {
+			blackList.sumarUna(obtenerIp());
+		}catch(Exception e) {}
+		finally {
+			return "NOTAUTH";
+		}
+		if (!GestorContra.verificarContraseña(password, usuariosHashMap.get(username)))try {
+			blackList.sumarUna(obtenerIp());
+		}catch(Exception e) {}
+		finally {
+			return "NOTAUTH";
+		}
 		return "AUTH";
 	}
 	@Override
 	public void add2Q(String token, String queueName, String message) throws RemoteException, NotAuthException {
-		if (token == null)throw new NotAuthException("Acceso Denegado");
-		if (!tokensHashMap.contains(token))throw new NotAuthException("Acceso Denegado");
+		try {if (blackList.superarFallosPermitidos(obtenerIp()))throw new NotAuthException("Acceso Denegado");}catch(Exception e) {}
+		if (token == null)try {
+			blackList.sumarUna(obtenerIp());
+		}catch(Exception e) {}
+		finally {
+			throw new NotAuthException("Acceso Denegado");
+		}
+		if (!tokensHashMap.contains(token))try {
+			blackList.sumarUna(obtenerIp());
+		}catch(Exception e) {}
+		finally {
+			throw new NotAuthException("Acceso Denegado");
+		}
 		if (queueName == null) throw new NotAuthException("El nombre de la cola es nulo");
 		if (message == null) throw new NotAuthException("El mensaje es nulo");
 		multiMapa.push(queueName, message);
@@ -57,16 +105,38 @@ public class BrokerAdmMsgImpl extends UnicastRemoteObject implements BrokerAdmMs
 	}
 	@Override
 	public void add2Q(String token, String message) throws RemoteException, NotAuthException {
-		if (token == null)throw new NotAuthException("Acceso Denegado");
-		if (!tokensHashMap.contains(token))throw new NotAuthException("Acceso Denegado");
+		try {if (blackList.superarFallosPermitidos(obtenerIp()))throw new NotAuthException("Acceso Denegado");}catch(Exception e) {}
+		if (token == null)try {
+			blackList.sumarUna(obtenerIp());
+		}catch(Exception e) {}
+		finally {
+			throw new NotAuthException("Acceso Denegado");
+		}
+		if (!tokensHashMap.contains(token))try {
+			blackList.sumarUna(obtenerIp());
+		}catch(Exception e) {}
+		finally {
+			throw new NotAuthException("Acceso Denegado");
+		}
 		if (message == null)throw new NotAuthException("El mensaje es nulo");
 		multiMapa.push("COLA DEFAULT", message);
 		mapaMensajesAddRead.get("COLA DEFAULT").sumaUnaAdd();
 	}
 	@Override
 	public String readQ(String token, String queueName) throws RemoteException, NotAuthException {
-		if (token == null)throw new NotAuthException("Acceso Denegado");
-		if (!tokensHashMap.contains(token))throw new NotAuthException("Acceso Denegado");
+		try {if (blackList.superarFallosPermitidos(obtenerIp()))throw new NotAuthException("Acceso Denegado");}catch(Exception e) {}
+		if (token == null)try {
+			blackList.sumarUna(obtenerIp());
+		}catch(Exception e) {}
+		finally {
+			throw new NotAuthException("Acceso Denegado");
+		}
+		if (!tokensHashMap.contains(token))try {
+			blackList.sumarUna(obtenerIp());
+		}catch(Exception e) {}
+		finally {
+			throw new NotAuthException("Acceso Denegado");
+		}
 		if (queueName == null) throw new NotAuthException("Cola no accesible");
 		String mensaje = multiMapa.pull(queueName);
 		if (mensaje == null)throw new NotAuthException("Cola sin mensajes");
@@ -88,8 +158,19 @@ public class BrokerAdmMsgImpl extends UnicastRemoteObject implements BrokerAdmMs
 	}
 	@Override
 	public String deleteQ(String token, String queueName) throws RemoteException, NotAuthException {
-		if (token == null)throw new NotAuthException("Acceso Denegado");
-		if (!tokensHashMap.contains(token))throw new NotAuthException("Acceso Denegado");
+		try {if (blackList.superarFallosPermitidos(obtenerIp()))throw new NotAuthException("Acceso Denegado");}catch(Exception e) {}
+		if (token == null)try {
+			blackList.sumarUna(obtenerIp());
+		}catch(Exception e) {}
+		finally {
+			throw new NotAuthException("Acceso Denegado");
+		}
+		if (!tokensHashMap.contains(token))try {
+			blackList.sumarUna(obtenerIp());
+		}catch(Exception e) {}
+		finally {
+			throw new NotAuthException("Acceso Denegado");
+		}
 		if (queueName == null)throw new NotAuthException("El nombre de la cola no puede ser nulo");
 		boolean saBorrado = multiMapa.deleted(queueName);
 		if (saBorrado) {
@@ -100,8 +181,19 @@ public class BrokerAdmMsgImpl extends UnicastRemoteObject implements BrokerAdmMs
 	}
 	@Override
 	public String peekQ(String token, String queueName) throws RemoteException, NotAuthException {
-		if (token == null)throw new NotAuthException("Acceso Denegado");
-		if (!tokensHashMap.contains(token))throw new NotAuthException("Acceso Denegado");
+		try {if (blackList.superarFallosPermitidos(obtenerIp()))throw new NotAuthException("Acceso Denegado");}catch(Exception e) {}
+		if (token == null)try {
+			blackList.sumarUna(obtenerIp());
+		}catch(Exception e) {}
+		finally {
+			throw new NotAuthException("Acceso Denegado");
+		}
+		if (!tokensHashMap.contains(token))try {
+			blackList.sumarUna(obtenerIp());
+		}catch(Exception e) {}
+		finally {
+			throw new NotAuthException("Acceso Denegado");
+		}
 		if (queueName == null) return null;
 		String mensaje = multiMapa.peek(queueName);
 		if (mensaje == null)
@@ -111,8 +203,19 @@ public class BrokerAdmMsgImpl extends UnicastRemoteObject implements BrokerAdmMs
 	}
 	@Override
 	public String peekQ(String token) throws RemoteException, NotAuthException {
-		if (token == null)throw new NotAuthException("Acceso Denegado");
-		if (!tokensHashMap.contains(token))throw new NotAuthException("Acceso Denegado");
+		try {if (blackList.superarFallosPermitidos(obtenerIp()))throw new NotAuthException("Acceso Denegado");}catch(Exception e) {}
+		if (token == null)try {
+			blackList.sumarUna(obtenerIp());
+		}catch(Exception e) {}
+		finally {
+			throw new NotAuthException("Acceso Denegado");
+		}
+		if (!tokensHashMap.contains(token))try {
+			blackList.sumarUna(obtenerIp());
+		}catch(Exception e) {}
+		finally {
+			throw new NotAuthException("Acceso Denegado");
+		}
 		String mensaje = multiMapa.peek();
 		if (mensaje == null)
 			return "EMPTY";
@@ -121,14 +224,23 @@ public class BrokerAdmMsgImpl extends UnicastRemoteObject implements BrokerAdmMs
 	}
 	@Override
 	public String getQueueList(String token) throws RemoteException, NotAuthException {
-		if (token == null)throw new NotAuthException("Acceso Denegado");
-		if (!tokensHashMap.contains(token))throw new NotAuthException("Acceso Denegado");
+		try {if (blackList.superarFallosPermitidos(obtenerIp()))throw new NotAuthException("Acceso Denegado");}catch(Exception e) {}
+		if (token == null)try {
+			blackList.sumarUna(obtenerIp());
+		}catch(Exception e) {}
+		finally {
+			throw new NotAuthException("Acceso Denegado");
+		}
+		if (!tokensHashMap.contains(token))try {
+			blackList.sumarUna(obtenerIp());
+		}catch(Exception e) {}
+		finally {
+			throw new NotAuthException("Acceso Denegado");
+		}
 		return multiMapa.getQueueList();
 	}
 	@Override
-	public String enter(String token,String nombreUsuario, String contraUsuario) throws RemoteException, NotAuthException, BathAuthException {
-		if (token == null)throw new NotAuthException("Acceso Denegado");
-		if (!tokensHashMap.contains(token))throw new NotAuthException("Acceso Denegado");
+	public String enter(String nombreUsuario, String contraUsuario) throws RemoteException, NotAuthException, BathAuthException {
 		String contraCifrada;
 		if (nombreUsuario == null) throw new BathAuthException("Nombre no válido");
 		if (contraUsuario == null) throw new BathAuthException("Contraseña no válida");
@@ -147,24 +259,57 @@ public class BrokerAdmMsgImpl extends UnicastRemoteObject implements BrokerAdmMs
 	
 	@Override
 	public void aceptarNuevosUsuarios(String token) throws RemoteException, NotAuthException {
-		if (token == null)throw new NotAuthException("Acceso Denegado");
-		if (!tokensHashMap.contains(token))throw new NotAuthException("Acceso Denegado");
+		try {if (blackList.superarFallosPermitidos(obtenerIp()))throw new NotAuthException("Acceso Denegado");}catch(Exception e) {}
+		if (token == null)try {
+			blackList.sumarUna(obtenerIp());
+		}catch(Exception e) {}
+		finally {
+			throw new NotAuthException("Acceso Denegado");
+		}
+		if (!tokensHashMap.contains(token))try {
+			blackList.sumarUna(obtenerIp());
+		}catch(Exception e) {}
+		finally {
+			throw new NotAuthException("Acceso Denegado");
+		}
 		this.peticionesHashMap.forEach((clave, valor)->{
 			usuariosHashMap.put(clave, valor);
 		});
 	}
 	@Override
 	public void aceptarNuevosUsuarios(String token, String usuario) throws RemoteException, NotAuthException {
-		if (token == null)throw new NotAuthException("Acceso Denegado");
-		if (!tokensHashMap.contains(token))throw new NotAuthException("Acceso Denegado");
+		try {if (blackList.superarFallosPermitidos(obtenerIp()))throw new NotAuthException("Acceso Denegado");}catch(Exception e) {}
+		if (token == null)try {
+			blackList.sumarUna(obtenerIp());
+		}catch(Exception e) {}
+		finally {
+			throw new NotAuthException("Acceso Denegado");
+		}
+		if (!tokensHashMap.contains(token))try {
+			blackList.sumarUna(obtenerIp());
+		}catch(Exception e) {}
+		finally {
+			throw new NotAuthException("Acceso Denegado");
+		}
 		if (usuario == null)return;
 		if (!peticionesHashMap.contains(usuario)) return;
 		usuariosHashMap.put(usuario,peticionesHashMap.get(usuario));
 	}
 	@Override
 	public String verPeticiones(String token) throws RemoteException, NotAuthException {
-		if (token == null)throw new NotAuthException("Acceso Denegado");
-		if (!tokensHashMap.contains(token))throw new NotAuthException("Acceso Denegado");
+		try {if (blackList.superarFallosPermitidos(obtenerIp()))throw new NotAuthException("Acceso Denegado");}catch(Exception e) {}
+		if (token == null)try {
+			blackList.sumarUna(obtenerIp());
+		}catch(Exception e) {}
+		finally {
+			throw new NotAuthException("Acceso Denegado");
+		}
+		if (!tokensHashMap.contains(token))try {
+			blackList.sumarUna(obtenerIp());
+		}catch(Exception e) {}
+		finally {
+			throw new NotAuthException("Acceso Denegado");
+		}
 		String mensajeDevolver = "";
 		peticionesHashMap.forEach((clave,valor)->{
 			mensajeDevolver.concat(":"+clave);
@@ -173,8 +318,19 @@ public class BrokerAdmMsgImpl extends UnicastRemoteObject implements BrokerAdmMs
 	}
 	@Override
 	public String state(String token, String queueName) throws RemoteException, NotAuthException {
-		if (token == null)throw new NotAuthException("Acceso Denegado");
-		if (!tokensHashMap.contains(token))throw new NotAuthException("Acceso Denegado");
+		try {if (blackList.superarFallosPermitidos(obtenerIp()))throw new NotAuthException("Acceso Denegado");}catch(Exception e) {}
+		if (token == null)try {
+			blackList.sumarUna(obtenerIp());
+		}catch(Exception e) {}
+		finally {
+			throw new NotAuthException("Acceso Denegado");
+		}
+		if (!tokensHashMap.contains(token))try {
+			blackList.sumarUna(obtenerIp());
+		}catch(Exception e) {}
+		finally {
+			throw new NotAuthException("Acceso Denegado");
+		}
 		if  (!multiMapa.contains(queueName))throw new NotAuthException("Acceso Denegado");
 		return queueName+":"+mapaMensajesAddRead.get(queueName).getContadorAdd()+":"+mapaMensajesAddRead.get(queueName).getContadorRead();
 	}

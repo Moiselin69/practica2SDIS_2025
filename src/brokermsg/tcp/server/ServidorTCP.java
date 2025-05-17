@@ -3,6 +3,8 @@ package brokermsg.tcp.server;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import brokermsg.common.BlackListManager;
 import brokermsg.tcp.server.Sirviente;
 import sdis.utils.MultiMap;
 import javax.net.ssl.*;
@@ -26,15 +28,16 @@ public class ServidorTCP implements Runnable {
     private int idSirviente = 0; // se utilizrá para saber que sirviente ha fallado
     private SSLServerSocket socketServidor;
     private SSLSocket socketParaCliente;
-    BlackListManager listaIps = new BlackListManager(3);
-    BlackListManager listaLogginsIncorrectos = new BlackListManager(2);
+    private BlackListManager listaIps;
+    private BlackListManager listaLogginsIncorrectos = new BlackListManager(2);
     private ObjectOutputStream oos;
 
     public ServidorTCP(int numHilos, int puertoAbrir,
     		ConcurrentHashMap<String, String> usuariosHashMap,
     		ConcurrentHashMap<String, String> usuariosAdminHashMap,
     		ConcurrentHashMap<String, ContadorAddRead> mapaMensajesAddRead,
-    		MultiMap multiMapa) throws Exception {
+    		MultiMap multiMapa,
+    		BlackListManager listaIps) throws Exception {
         this.numHilos = numHilos;
         this.puertoAbrir = puertoAbrir;
         SSLContext sslContext = SSLServer.createSSLContext();
@@ -44,6 +47,7 @@ public class ServidorTCP implements Runnable {
         this.usuariosAdminHashMap = usuariosAdminHashMap;
         this.mapaMensajesAddRead = mapaMensajesAddRead;
         this.multiMap = multiMapa;
+        this.listaIps = listaIps;
     }
     public void run(){ // en las siguientes lineas se lanzará el Pool de hilos
         ExecutorService executor = Executors.newFixedThreadPool(numHilos);

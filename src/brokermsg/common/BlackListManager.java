@@ -1,4 +1,4 @@
-package brokermsg.tcp.server;
+package brokermsg.common;
 
 import java.net.InetAddress;
 import java.util.concurrent.ConcurrentHashMap;

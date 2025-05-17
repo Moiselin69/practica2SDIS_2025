@@ -51,6 +51,6 @@ public interface BrokerMsg extends Remote {
      * @param nombreUsuario Como primer parametro pasamos el nombre de usuario que desea entrar al sistema
      * @param contraUsuario Como segundo parametro pasamos el nombre de usuario que desea entrar al sistema
      */
-    String enter(String token, String nombreUsuario, String contraUsuario)throws RemoteException, BathAuthException, NotAuthException;
+    String enter(String nombreUsuario, String contraUsuario)throws RemoteException, BathAuthException, NotAuthException;
 }
 

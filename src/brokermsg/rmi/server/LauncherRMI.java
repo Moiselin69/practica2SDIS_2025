@@ -5,6 +5,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.rmi.ssl.SslRMIClientSocketFactory;
 import javax.rmi.ssl.SslRMIServerSocketFactory;
 
+import brokermsg.common.BlackListManager;
 import brokermsg.tcp.server.ContadorAddRead;
 import sdis.utils.MultiMap;
 public class LauncherRMI {
@@ -16,6 +17,7 @@ public class LauncherRMI {
 	private ConcurrentHashMap<String, String> peticionesHashMap;
 	private ConcurrentHashMap<String, ContadorAddRead> mapaMensajesAddRead;
 	private MultiMap multiMapa;
+	private BlackListManager blackList;
 	public LauncherRMI(int puerto, 
 			ConcurrentHashMap<String, String> usuariosHashMap,
 			ConcurrentHashMap<String, String> usuariosAdminHashMap,
@@ -23,7 +25,8 @@ public class LauncherRMI {
 			ConcurrentHashMap<String, String> tokensAdminHashMap,
 			ConcurrentHashMap<String, String> peticionesHashMap,
     		ConcurrentHashMap<String, ContadorAddRead> mapaMensajesAddRead,
-    		MultiMap multiMapa) {
+    		MultiMap multiMapa,
+    		BlackListManager blackList) {
 		this.puerto = puerto;
 		this.usuariosHashMap = usuariosHashMap;
 		this.usuariosAdminHashMap = usuariosAdminHashMap;
@@ -32,6 +35,7 @@ public class LauncherRMI {
 		this.peticionesHashMap = peticionesHashMap;
 		this.mapaMensajesAddRead = mapaMensajesAddRead;
 		this.multiMapa = multiMapa;
+		this.blackList = blackList;
 	}
 	public void run() {
 		System.setProperty("javax.net.ssl.keyStore", "src/sdis/config/servidor_keystore.jks");
@@ -45,9 +49,9 @@ public class LauncherRMI {
 					);
 
 	            // Crear las implementaciones de los objetos
-	            AuthenticatorImpl auth = new AuthenticatorImpl(usuariosHashMap, tokensHashMap);
-	            BrokerMsgImpl data_user = new BrokerMsgImpl(usuariosHashMap, tokensHashMap, peticionesHashMap, mapaMensajesAddRead,multiMapa);
-	            BrokerAdmMsgImpl data_admin = new BrokerAdmMsgImpl(usuariosAdminHashMap, tokensAdminHashMap, peticionesHashMap, mapaMensajesAddRead, multiMapa);
+	            AuthenticatorImpl auth = new AuthenticatorImpl(usuariosHashMap, tokensHashMap, blackList);
+	            BrokerMsgImpl data_user = new BrokerMsgImpl(usuariosHashMap, tokensHashMap, peticionesHashMap, mapaMensajesAddRead,multiMapa, blackList);
+	            BrokerAdmMsgImpl data_admin = new BrokerAdmMsgImpl(usuariosAdminHashMap, tokensAdminHashMap, peticionesHashMap, mapaMensajesAddRead, multiMapa, blackList);
 	            // Registrar los objetos en el registro con diferentes nombres
 	            registry.rebind("AuthenticatorImpl", auth);
 	            registry.rebind("BrokerMsgImpl", data_user);

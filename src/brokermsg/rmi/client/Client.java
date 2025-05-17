@@ -1,11 +1,21 @@
 package brokermsg.rmi.client;
-package brokermsg.rmi.common.*;
+
 import java.util.Scanner;
-import java.rmi.Naming
+
+import brokermsg.rmi.common.Authenticator;
+import brokermsg.rmi.common.BathAuthException;
+import brokermsg.rmi.common.BrokerMsg;
+import brokermsg.rmi.common.BrokerAdmMsg;
+import brokermsg.rmi.common.NotAuthException;
+
+import java.net.MalformedURLException;
+import java.rmi.Naming;
+import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
-public class Client implements Authenticator, BrokerMsg, BrokerAddmsg {
-          public static void main (String[] args){
-                    Scanner in = new Scanner(System.in);
+import java.security.NoSuchAlgorithmException;
+public class Client  {
+          public static void main (String[] args) throws MalformedURLException, RemoteException, NotBoundException, NoSuchAlgorithmException{
+                    Scanner scanner = new Scanner(System.in);
                     String nombre, contra, token;
                     boolean comprobacion = true;
                     while (comprobacion){
@@ -31,4 +41,5 @@ public class Client implements Authenticator, BrokerMsg, BrokerAddmsg {
                               System.out.println(e);
                     }
           }
+
 }

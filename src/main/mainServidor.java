@@ -9,6 +9,7 @@ import java.io.File;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedDeque;
 
+import brokermsg.common.BlackListManager;
 import brokermsg.rmi.server.LauncherRMI;
 import brokermsg.tcp.server.ContadorAddRead;
 import brokermsg.tcp.server.ServidorTCP;
@@ -35,12 +36,13 @@ public class mainServidor {
 	        mapaMensajesAddRead.put("COLA DEFAULT", new ContadorAddRead());
 	        
 	        MultiMap multiMapa = new MultiMap();
+	        BlackListManager blackList = new BlackListManager(3);
 	        try{
 	            mapper.writeValue(new File("src/sdis/config/usuariosContras.json"), usuariosHashMap);
 	            mapper.writeValue(new File("src/sdis/config/colasMensajeria.json"), multiMapa.obtenerTodasColas());
 	            mapper.writeValue(new File("src/sdis/config/depuracionColasMensajeria.json"), mapaMensajesAddRead);
-	            ServidorTCP servidorPadre = new ServidorTCP(5, 2000, usuariosHashMap,usuariosAdminHashMap,mapaMensajesAddRead, multiMapa);
-	            LauncherRMI servidorRMI = new LauncherRMI(1099, usuariosHashMap, usuariosAdminHashMap, tokensHashMap, tokensAdminHashMap,peticionesHashMap, mapaMensajesAddRead, multiMapa);
+	            ServidorTCP servidorPadre = new ServidorTCP(5, 2000, usuariosHashMap,usuariosAdminHashMap,mapaMensajesAddRead, multiMapa, blackList);
+	            LauncherRMI servidorRMI = new LauncherRMI(1099, usuariosHashMap, usuariosAdminHashMap, tokensHashMap, tokensAdminHashMap,peticionesHashMap, mapaMensajesAddRead, multiMapa, blackList);
 	            servidorRMI.run();
 	            servidorPadre.run();
 	            
