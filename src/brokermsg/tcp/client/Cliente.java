@@ -45,7 +45,7 @@ public class Cliente {
             // Crear los streams de entrada y salida para la comunicación con el servidor
             oos = new ObjectOutputStream(socket.getOutputStream());
             ois = new ObjectInputStream(socket.getInputStream());
-
+            System.out.print("Has entrado a la versión TCP :)");
             Scanner scanner = new Scanner(System.in);
             try{
                 mensajeProtocolo = (MensajeProtocolo) ois.readObject();

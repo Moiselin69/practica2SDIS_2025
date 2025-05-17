@@ -33,7 +33,8 @@ public class Client {
             autenticador = (Authenticator) registry.lookup("AuthenticatorImpl");
             broker = (BrokerMsg) registry.lookup("BrokerMsgImpl");
             brokerAdm = (BrokerAdmMsg) registry.lookup("BrokerAdmMsgImpl");
-            System.out.println("Buenas; Escriba 1 si quiere entrar como usuario normal; Escriba 2 si quiere entrar como usuario administrador; Escriba 0 si desea salir");
+            System.out.println("Has entrado a la conexión vía RMI :)");
+            System.out.println("Escriba 1 si quiere entrar como usuario normal; Escriba 2 si quiere entrar como usuario administrador; Escriba 0 si desea salir");
             while (continuar) {
             	tipoUsuario = scanner.nextLine();
             	if (tipoUsuario.equals("0")) continuar = false;
