@@ -31,6 +31,7 @@ public class BrokerMsgImpl extends UnicastRemoteObject implements BrokerMsg {
 		this.usuariosHashMap = usuariosHashMap;
 		this.tokensHashMap = tokensHashMap;
 		this.peticionesHashMap = peticionesHashMap;
+		this.mapaMensajesAddRead = mapaMensajesAddRead;
 		this.multiMapa = multiMapa;
 		this.blackList = blackList;
 	}

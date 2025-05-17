@@ -1,9 +1,14 @@
 package brokermsg.rmi.client;
 
 import java.util.Scanner;
+
+import javax.rmi.ssl.SslRMIClientSocketFactory;
+
 import brokermsg.rmi.common.*;
 import java.rmi.Naming;
 import java.rmi.RemoteException;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
 
 public class Client {
     private static final String RMI_URL = "rmi://localhost/";
@@ -21,9 +26,11 @@ public class Client {
             System.setProperty("java.rmi.server.RMIClientSocketFactory", "javax.rmi.ssl.SslRMIClientSocketFactory");
             
             // Obtener referencias a los objetos remotos
-            autenticador = (Authenticator) Naming.lookup(RMI_URL + "AuthenticatorImpl");
-            broker = (BrokerMsg) Naming.lookup(RMI_URL + "BrokerMsgImpl");
-            brokerAdm = (BrokerAdmMsg) Naming.lookup(RMI_URL + "BrokerAdmMsgImpl");
+            Registry registry = LocateRegistry.getRegistry("localhost", 1099, new SslRMIClientSocketFactory());
+
+            autenticador = (Authenticator) registry.lookup("AuthenticatorImpl");
+            broker = (BrokerMsg) registry.lookup("BrokerMsgImpl");
+            brokerAdm = (BrokerAdmMsg) registry.lookup("BrokerAdmMsgImpl");
             
             // Autenticar al usuario
             if (autenticarUsuario()) {
@@ -145,6 +152,7 @@ public class Client {
                 System.out.println("Por favor, ingrese un número");
             } catch (Exception e) {
                 System.out.println("Error: " + e.getMessage());
+                e.printStackTrace(); 
             }
         }
     }
