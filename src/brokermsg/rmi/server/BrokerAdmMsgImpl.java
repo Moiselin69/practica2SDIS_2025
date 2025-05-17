@@ -74,7 +74,7 @@ public class BrokerAdmMsgImpl extends UnicastRemoteObject implements BrokerAdmMs
 		finally {
 			return "NOTAUTH";
 		}
-		if (!GestorContra.verificarContraseña(password, usuariosHashMap.get(username)))try {
+		if (!GestorContra.verificarContras(password, usuariosHashMap.get(username)))try {
 			blackList.sumarUna(obtenerIp());
 		}catch(Exception e) {}
 		finally {
@@ -252,7 +252,7 @@ public class BrokerAdmMsgImpl extends UnicastRemoteObject implements BrokerAdmMs
 		if (!contraUsuario.contains("ABCDEFGHIJKLMNÑOPQRSTUVWXYZ")) throw new BathAuthException("Contraseña no válida. No contiene una mayúscula");;
 		if (usuariosHashMap.contains(nombreUsuario)) throw new BathAuthException("Nombre no válido. Ya existe en el sistema");
 		if (peticionesHashMap.contains(nombreUsuario)) throw new BathAuthException("Nombre no válido. Ya existe en el sistema");
-		contraCifrada = GestorContra.cifrarContraseña(contraUsuario);
+		contraCifrada = GestorContra.cifrarContras(contraUsuario);
 		peticionesHashMap.put(nombreUsuario, contraCifrada);
 		return "VALID";
 	}

@@ -3,10 +3,10 @@ package sdis.utils;
 import org.mindrot.jbcrypt.BCrypt;
 
 public class GestorContra {
-	public static String cifrarContraseña(String contraseña) {
-        return BCrypt.hashpw(contraseña, BCrypt.gensalt());
+	public static String cifrarContras(String contra) {
+        return BCrypt.hashpw(contra, BCrypt.gensalt());
     }
-	public static boolean verificarContraseña(String contraseñaIngresada, String hashAlmacenado) {
-        return BCrypt.checkpw(contraseñaIngresada, hashAlmacenado);
+	public static boolean verificarContras(String contraIngresada, String hashAlmacenado) {
+        return BCrypt.checkpw(contraIngresada, hashAlmacenado);
     }
 }

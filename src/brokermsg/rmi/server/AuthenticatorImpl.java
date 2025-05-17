@@ -57,7 +57,7 @@ public class AuthenticatorImpl extends UnicastRemoteObject implements Authentica
 				throw new NotAuthException("Acceso denegado");
 			}
 		}
-		if (!GestorContra.verificarContraseña(password, usuariosHashMap.get(nombreUsuario))){
+		if (!GestorContra.verificarContras(password, usuariosHashMap.get(nombreUsuario))){
 			try {
 				blackList.sumarUna(obtenerIp());
 			}catch(Exception e) {}

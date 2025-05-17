@@ -20,15 +20,15 @@ public class mainServidor {
 	 public static void main(String[] args){
 		 	ObjectMapper mapper = new ObjectMapper();
 	        ConcurrentHashMap<String, String> usuariosHashMap = new ConcurrentHashMap<>();
-	        usuariosHashMap.put("Manoli", GestorContra.cifrarContraseña("1234"));
-	        usuariosHashMap.put("Paqui", GestorContra.cifrarContraseña("1234"));
-	        usuariosHashMap.put("Luisma", GestorContra.cifrarContraseña("1234"));
-	        usuariosHashMap.put("Barajas", GestorContra.cifrarContraseña("1234"));
+	        usuariosHashMap.put("Manoli", GestorContra.cifrarContras("1234"));
+	        usuariosHashMap.put("Paqui", GestorContra.cifrarContras("1234"));
+	        usuariosHashMap.put("Luisma", GestorContra.cifrarContras("1234"));
+	        usuariosHashMap.put("Barajas", GestorContra.cifrarContras("1234"));
 	        ConcurrentHashMap<String, String> usuariosAdminHashMap = new ConcurrentHashMap<>();
-	        usuariosAdminHashMap.put("cllamas", GestorContra.cifrarContraseña("qwerty"));
-	        usuariosAdminHashMap.put("hector", GestorContra.cifrarContraseña("lkjlkj"));
-	        usuariosAdminHashMap.put("sdis", GestorContra.cifrarContraseña("987123"));
-	        usuariosAdminHashMap.put("admin", GestorContra.cifrarContraseña("$%&/()="));
+	        usuariosAdminHashMap.put("cllamas", GestorContra.cifrarContras("qwerty"));
+	        usuariosAdminHashMap.put("hector", GestorContra.cifrarContras("lkjlkj"));
+	        usuariosAdminHashMap.put("sdis", GestorContra.cifrarContras("987123"));
+	        usuariosAdminHashMap.put("admin", GestorContra.cifrarContras("$%&/()="));
 	        ConcurrentHashMap<String, String> tokensHashMap = new ConcurrentHashMap<>();
 	        ConcurrentHashMap<String, String> tokensAdminHashMap = new ConcurrentHashMap<>();
 	        ConcurrentHashMap<String, String> peticionesHashMap = new ConcurrentHashMap<>();
