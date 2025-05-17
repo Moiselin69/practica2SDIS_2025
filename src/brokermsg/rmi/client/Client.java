@@ -146,8 +146,7 @@ public class Client {
                         System.out.println("Opción no válida");
                 }
             } catch (NotAuthException e) {
-                System.out.println("Error de autenticación: " + e.getMessage());
-                salir = true; // Finalizar si hay error de autenticación
+                System.out.println(e.getMessage());
             } catch (NumberFormatException e) {
                 System.out.println("Por favor, ingrese un número");
             } catch (Exception e) {
