@@ -32,7 +32,7 @@ public class AuthenticatorImpl extends UnicastRemoteObject implements Authentica
 	
 	@Override
 	public String conect(String nombreUsuario, String password) throws RemoteException, BathAuthException, NotAuthException, NoSuchAlgorithmException {
-		try {if (blackList.superarFallosPermitidos(obtenerIp()))return null;}catch(Exception e) {}
+		try {if (blackList.superarFallosPermitidos(obtenerIp()))throw new NotAuthException("Acceso denegado");}catch(Exception e) {}
 		if (nombreUsuario == null) {
 			try {
 				blackList.sumarUna(obtenerIp());
@@ -49,7 +49,7 @@ public class AuthenticatorImpl extends UnicastRemoteObject implements Authentica
 				throw new BathAuthException("Contraseña de usuario null");
 			}
 		}
-		if (!usuariosHashMap.contains(nombreUsuario)) {
+		if (!usuariosHashMap.containsKey(nombreUsuario)) {
 			try {
 				blackList.sumarUna(obtenerIp());
 			}catch(Exception e) {}
@@ -57,7 +57,7 @@ public class AuthenticatorImpl extends UnicastRemoteObject implements Authentica
 				throw new NotAuthException("Acceso denegado");
 			}
 		}
-		if (GestorContra.verificarContraseña(password, usuariosHashMap.get(nombreUsuario))){
+		if (!GestorContra.verificarContraseña(password, usuariosHashMap.get(nombreUsuario))){
 			try {
 				blackList.sumarUna(obtenerIp());
 			}catch(Exception e) {}
